@@ -24,11 +24,17 @@
     owner: "{{ airflow_user }}"
     group: "{{ airflow_group }}"
 
-- name: Airflow | Installing dependencies
-  apt:
-    pkg: "{{ airflow_required_libs }}"
-    state: present
-    update_cache: yes
+#- name: Airflow | Installing dependencies
+#  apt:
+#    pkg: "{{ airflow_required_libs }}"
+#    state: present
+#    update_cache: yes
+    
+#- name: Airflow | Installing dependencies
+#  yum:
+#    pkg: "{{ airflow_required_libs }}"
+#    state: present
+#    update_cache: yes
 
 - name: Airflow | Installing Python pip dependencies
   pip:
@@ -57,16 +63,53 @@
     path: /etc/environment
     line: 'AIRFLOW_HOME={{ airflow_home }}'
 
+#- name: Airflow | Installing Pip
+#  pip:
+#    executable: "{{ airflow_pip_executable }}"
+#    name: pip
+#    state: latest
+
+- name: Install DeltaRPM
+  yum:
+    name: "{{ item }}"
+  with_items:
+  - python-setuptools
+  - python-pip
+  - python2-pip
+  - acl
+  - gcc
+  - sudo
+
+
+- name: Install fabric binary dependencies
+  yum:
+    name: "{{ item }}"
+    state: present
+    disable_gpg_check: yes
+  with_items:
+  - deltarpm
+  - python36u-devel
+
+- name: install the package, force upgrade
+  pip:
+    name: pip
+    executable: "{{ airflow_pip_executable }}"
+    state: latest
+
 - name: Airflow | Installing Airflow
   pip:
     executable: "{{ airflow_pip_executable }}"
     name: apache-airflow
     version: "{{ airflow_version }}"
     extra_args: --no-cache-dir
+    state: forcereinstall
   register: airflow_install
   environment:
     SLUGIFY_USES_TEXT_UNIDECODE: "yes"
-
+    
+- name: Changing perm of {{ airflow_executable }}, adding "+x"
+  file: dest={{ airflow_executable }} mode=a+x   
+    
 - name: Airflow | Installing Airflow Extra Packages (prior to Ansible 2.7)
   pip:
     executable: "{{ airflow_pip_executable }}"
@@ -109,7 +152,7 @@
 - name: Airflow | Copy Daemon scripts
   template:
     src: "{{ item.key }}.service.j2"
-    dest: /lib/systemd/system/{{ item.key }}.service
+    dest: /etc/systemd/system/{{ item.key }}.service
     mode: 0644
   notify: restart {{ item.key }}
   with_dict: "{{ airflow_services }}"

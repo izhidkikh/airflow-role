@@ -3,31 +3,27 @@ dependency:
   name: galaxy
 driver:
   name: docker
-lint:
-  name: yamllint
-  enabled: False
-
+lint: |
+  ansible-lint
+  flake8
 platforms:
-  - name: airflow-${MOLECULE_DISTRO:-stretch}
-    image: debian:${MOLECULE_DISTRO:-stretch}
-    privileged: true
+  - name: instance
+    image: junejie/docker-centos7-python3.6
+    pre_build_image: true
+    command: /sbin/init
     capabilities:
       - SYS_ADMIN
+    tmpfs:
+      - /run
+      - /tmp
     volumes:
-      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-    groups:
-      - airflow
-    command: '/lib/systemd/systemd'
-
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    published_ports:
+      - 80:80
+      - 8080:8080
+      - 5555:5555
 provisioner:
   name: ansible
-  lint:
-    name: ansible-lint
-    enabled: False
-scenario:
-  name: default
+  log: true
 verifier:
-  name: goss
-  lint:
-    name: yamllint
-    enabled: False
+  name: ansible

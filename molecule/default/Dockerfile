@@ -1,10 +1,7 @@
-# Molecule managed
-
-{% if item.registry is defined %}
-FROM {{ item.registry.url }}/{{ item.image }}
-{% else %}
-FROM {{ item.image }}
-{% endif %}
+  
+FROM centos:7
+LABEL maintainer="Matt Plachter"
+ENV container=docker
 
 # Create `ansible` user with sudo permissions and membership in `DEPLOY_GROUP`
 ENV ANSIBLE_USER=ansible SUDO_GROUP=wheel DEPLOY_GROUP=deployer
@@ -15,3 +12,7 @@ RUN set -xe \
   && usermod -aG ${SUDO_GROUP} ${ANSIBLE_USER} \
   && usermod -aG ${DEPLOY_GROUP} ${ANSIBLE_USER} \
   && sed -i "/^%${SUDO_GROUP}/s/ALL\$/NOPASSWD:ALL/g" /etc/sudoers \
+  && yum makecache fast \
+  && yum install -y python3
+
+CMD ["/usr/sbin/init"]

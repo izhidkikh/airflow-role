@@ -34,6 +34,11 @@
     - restart airflow-worker
     - restart airflow-flower
 
+- name: install SQLAlchemy
+  pip:
+    name: SQLAlchemy==1.3.15
+    executable: "{{ airflow_pip_executable }}"
+
 - name: Airflow | Initializing DB
   command: "{{ airflow_executable }} initdb"
   environment:
