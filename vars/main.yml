@@ -302,6 +302,18 @@ airflow_kubernetes_gcp_service_account_keys:
 airflow_kubernetes_in_cluster: "True"
 
 ## DAGs
+# Git setup for cloning DAGs into Airflow DAG folder
+workspace: "{{ airflow_config.core.dags_folder }}"
+git_repo: "https://github.com/izhidkikh/airflow-official.git"
+git_dest_folder: "dags"
+git_branch_or_release: "master"
+git_dags_folder: "/home/molecule/dags_repo"
+
+airflow_dag_system_dependencies:
+  - name: "@Development tools"
+    state: "present"
+  - name: "sqlite-devel"
+    state: "present"
 # Python dependencies needed by the DAGs. This variable is expected to be a
 # list of items following the structure provided in the example comment
 dags_dependencies:

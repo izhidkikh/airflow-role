@@ -17,3 +17,8 @@
   tags:
     - service
     - airflow_service
+
+- name: Airflow | Deploy DAGs
+  import_tasks: "dags.yml"
+  tags:
+    - dags

@@ -1,0 +1,22 @@
+---
+# For Listed DAG Git Repos, clone designated branch or release to DAGS folder
+  #become_user: "{{ airflow_user_name }}"
+  #become: true
+- name: Airflow | DAGS | Clone listed DAG git repositories
+  delegate_to: 127.0.0.1
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ git_dags_folder }}"
+    clone: true
+    force: true
+    version: "{{ git_branch_or_release }}"
+    recursive: false
+
+- name: Copy file with owner and permissions
+  copy:
+    src: '{{ git_dags_folder }}/airflow/example_dags'
+    dest: '{{ airflow_dags_folder }}'
+    owner: '{{ airflow_user }}'
+    group: '{{ airflow_group}}'
+    mode: '0644'
+

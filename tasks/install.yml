@@ -79,6 +79,7 @@
   - acl
   - gcc
   - sudo
+  - git
 
 
 - name: Install fabric binary dependencies
